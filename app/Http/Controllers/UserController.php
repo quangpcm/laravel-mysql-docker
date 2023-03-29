@@ -23,7 +23,7 @@ class UserController extends Controller
         }
 
         // $user->where('deleted_at', '==', null);    
-        return $user->onlyTrashed()->get();
+        return $user->get();
     }
 
     public function scopeName($query, $request) {
