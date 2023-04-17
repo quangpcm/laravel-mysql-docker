@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use DateTime;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends Controller
@@ -21,9 +25,7 @@ class UserController extends Controller
         if ($email != null) {
             $user->where('email', 'LIKE', '%'.$email.'%' );    
         }
-
-        // $user->where('deleted_at', '==', null);    
-        return $user->get();
+        return UserResource::collection($user->get());
     }
 
     public function scopeName($query, $request) {
@@ -36,31 +38,37 @@ class UserController extends Controller
 
     // GET /users/{users} users.show
     public function show($id) {
-        return User::findOrFail($id);
+        $user = User::with('tasks')->find($id);
+        return new UserResource($user);
     }
 
     // POST /users users.store
-    public function store(Request $request) {
-        $name = $request->request->get('name');
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
+    public function store(CreateUserRequest $request) {
+        // Log::info('aaa');
+        $validated = $request->all();
 
-        if (($name == null) && ($email == null) ($password == null)) {
-            return 'ERROR';
-        } else {
-            // create user
-            $userData = [
-                'name' => $name,
-                'email' => $email,
-                'password' => $password,
-            ];
-            $newUser = User::create($userData);
-            return $newUser;
-        };
+        $name = $validated['name'];
+        $email = $validated['email'];
+        $password = $validated['password'];
+        $uuid = $validated['uuid'];
+
+        // create user
+        $userData = [
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'uuid' => $uuid,
+        ];
+        dump($userData);
+        $newUser = User::create($userData);
+        return new UserResource($newUser);
     }
 
     // PUT/PATCH /users/{users} users.update
     public function update($id, Request $request) {
+
+        // Retrieve the validated input data...
+
         $user = User::findOrFail($id);
         
         if ($user) {
@@ -83,7 +91,7 @@ class UserController extends Controller
         } else {
             return 'User is not register';
         }
-        return $user;
+        return new UserResource($user);
     }
 
     // DELETE /users/{users} users.destroy
@@ -96,6 +104,6 @@ class UserController extends Controller
         } else {
             return 'User is not register';
         }
-        return $user;
+        return new UserResource($user);
     }
 }
