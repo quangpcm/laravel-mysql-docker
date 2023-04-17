@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use DateTime;
 use Illuminate\Support\Facades\Log;
@@ -24,8 +25,7 @@ class UserController extends Controller
         if ($email != null) {
             $user->where('email', 'LIKE', '%'.$email.'%' );    
         }
-
-        return $user->get();
+        return UserResource::collection($user->get());
     }
 
     public function scopeName($query, $request) {
@@ -39,7 +39,7 @@ class UserController extends Controller
     // GET /users/{users} users.show
     public function show($id) {
         $user = User::with('tasks')->find($id);
-        return $user;
+        return new UserResource($user);
     }
 
     // POST /users users.store
@@ -61,7 +61,7 @@ class UserController extends Controller
         ];
         dump($userData);
         $newUser = User::create($userData);
-        return $newUser;
+        return new UserResource($newUser);
     }
 
     // PUT/PATCH /users/{users} users.update
@@ -91,7 +91,7 @@ class UserController extends Controller
         } else {
             return 'User is not register';
         }
-        return $user;
+        return new UserResource($user);
     }
 
     // DELETE /users/{users} users.destroy
@@ -104,6 +104,6 @@ class UserController extends Controller
         } else {
             return 'User is not register';
         }
-        return $user;
+        return new UserResource($user);
     }
 }
