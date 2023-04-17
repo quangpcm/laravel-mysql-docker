@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use DateTime;
@@ -42,31 +43,25 @@ class UserController extends Controller
     }
 
     // POST /users users.store
-    public function store(Request $request) {
+    public function store(CreateUserRequest $request) {
         // Log::info('aaa');
-        // $validated = $request->validated();
+        $validated = $request->all();
 
-        // if (!$validated) {
-        //     abort(404, 'ERROR', []);
-        // }
+        $name = $validated['name'];
+        $email = $validated['email'];
+        $password = $validated['password'];
+        $uuid = $validated['uuid'];
 
-        $name = $request->request->get('name');
-        $email = $request->request->get('email');
-        $password = $request->request->get('password');
-
-        if (($name == null) && ($email == null) ($password == null)) {
-            return 'ERROR';
-        } else {
-            // create user
-            $userData = [
-                'name' => $name,
-                'email' => $email,
-                'password' => $password,
-                'uuid' => 'uuid',
-            ];
-            $newUser = User::create($userData);
-            return $newUser;
-        };
+        // create user
+        $userData = [
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'uuid' => $uuid,
+        ];
+        dump($userData);
+        $newUser = User::create($userData);
+        return $newUser;
     }
 
     // PUT/PATCH /users/{users} users.update
