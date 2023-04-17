@@ -20,8 +20,8 @@ return new class extends Migration
             $table->dateTime('start_date')->nullable();
             $table->decimal('estimate', 5, 2);
             $table->decimal('actual', 5, 2);
-            $table->bigInteger('assignee')->unsigned();
-            $table->foreign('assignee')->references('id')->on('users'); 
+            $table->bigInteger('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users'); 
             $table->timestamps();
         });
     }

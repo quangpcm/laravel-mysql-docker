@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use DateTime;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Request;
 
 class UserController extends Controller
@@ -22,7 +24,6 @@ class UserController extends Controller
             $user->where('email', 'LIKE', '%'.$email.'%' );    
         }
 
-        // $user->where('deleted_at', '==', null);    
         return $user->get();
     }
 
@@ -36,11 +37,19 @@ class UserController extends Controller
 
     // GET /users/{users} users.show
     public function show($id) {
-        return User::findOrFail($id);
+        $user = User::with('tasks')->find($id);
+        return $user;
     }
 
     // POST /users users.store
     public function store(Request $request) {
+        // Log::info('aaa');
+        // $validated = $request->validated();
+
+        // if (!$validated) {
+        //     abort(404, 'ERROR', []);
+        // }
+
         $name = $request->request->get('name');
         $email = $request->request->get('email');
         $password = $request->request->get('password');
@@ -53,6 +62,7 @@ class UserController extends Controller
                 'name' => $name,
                 'email' => $email,
                 'password' => $password,
+                'uuid' => 'uuid',
             ];
             $newUser = User::create($userData);
             return $newUser;
@@ -61,6 +71,9 @@ class UserController extends Controller
 
     // PUT/PATCH /users/{users} users.update
     public function update($id, Request $request) {
+
+        // Retrieve the validated input data...
+
         $user = User::findOrFail($id);
         
         if ($user) {
